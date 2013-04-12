@@ -1,0 +1,63 @@
+#!/usr/bin/env python
+
+# WordCountJournal
+# Copyright 2013 Hal Canary
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import datetime
+import os
+import PyQt4.QtGui
+import PyQt4.QtCore
+
+today = datetime.date.today()
+year = today.year
+jdir = os.path.join(os.path.expanduser("~"),'Documents','Journal',str(year))
+try:
+	os.makedirs(jdir)
+except (OSError,):
+	pass
+jfile = os.path.join(jdir, 'journal-%s.txt' % today.isoformat())
+
+a = PyQt4.QtGui.QApplication([])
+w = PyQt4.QtGui.QWidget()
+
+gridLayout = PyQt4.QtGui.QGridLayout(w)
+textEdit = PyQt4.QtGui.QTextEdit(w)
+gridLayout.addWidget(textEdit, 0, 0, 1, 2)
+label = PyQt4.QtGui.QLabel(w)
+gridLayout.addWidget(label, 1, 0, 1, 1)
+pushButton = PyQt4.QtGui.QPushButton(w)
+gridLayout.addWidget(pushButton, 1, 1, 1, 1)
+label.setText("hello")
+pushButton.setText("OKAY")
+def f():
+	v = str(textEdit.toPlainText())
+	s = sum(len(l.split()) for l in v.split('\n'))
+	label.setText(str(s))
+def g():
+	v = str(textEdit.toPlainText())
+	if len(v) > 0 and v[-1] != '\n':
+		v = v + '\n'
+	with open(jfile,'w') as f:
+		f.write(v)
+	w.close()
+pushButton.connect(pushButton,PyQt4.QtCore.SIGNAL("clicked()"), g)
+textEdit.connect(textEdit,PyQt4.QtCore.SIGNAL("textChanged()"), f)
+try:
+	with open(jfile,'r') as f:
+		textEdit.setPlainText(f.read())
+except:
+	pass
+w.show()
+a.exec_()
