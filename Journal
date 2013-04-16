@@ -20,27 +20,29 @@ import os
 import PyQt4.QtGui
 import PyQt4.QtCore
 
-Location = os.path.join(os.path.expanduser("~"),'Documents','Journal')
+class SingleFileEditor(PyQt4.QtGui.QMainWindow):
+	def __init__(self, filename, WindowTitle):
+		super(SingleFileEditor, self).__init__(None)
+		self.setWindowIcon(PyQt4.QtGui.QIcon(PyQt4.QtGui.QIcon.fromTheme("text")))
+		self.filename = filename
+		self.setStyleSheet(
+			"background-color:rgb(0, 0, 0); "
+			"color: rgb(255, 255, 255); "
+			"border-style: outset; "
+			"border-width: 2px; "
+			"border-color: rgb(31, 31, 31);")
 
-class Journal(PyQt4.QtGui.QMainWindow):
-	def __init__(self, parent=None):
-		super(Journal, self).__init__(parent)
-		self.setWindowTitle('WordCountJournal')
-		today = datetime.date.today()
-		year = today.year
-		jdir = os.path.join(Location, str(year))
-		try:
-			os.makedirs(jdir)
-		except (OSError,):
-			pass # directory already exists
-		self.jfile = os.path.join(jdir, 'journal-%s.txt' % today.isoformat())
-
+		self.setWindowTitle(WindowTitle)
 		self.textEdit = PyQt4.QtGui.QTextEdit(self)
+		self.textEdit.setAcceptRichText(False)
 		self.statusBar =PyQt4.QtGui.QStatusBar()
-
+		self.textEdit.setFontPointSize(14)
+		self.textEdit.setStyleSheet(
+			"background-color:rgb(0, 0, 0); "
+			"color: rgb(255, 255, 255);")
 		try:
-			with open(self.jfile, 'rU') as f:
-				self.textEdit.setPlainText(f.read())
+			with open(self.filename, 'rU') as f:
+				self.textEdit.setPlainText(unicode(f.read(),'utf8'))
 		except (IOError,):
 			pass # file does not exist
 		self.textHasChanged()
@@ -55,20 +57,36 @@ class Journal(PyQt4.QtGui.QMainWindow):
 		self.resize(500, 500)
 		self.setCentralWidget(self.textEdit)
 		self.setStatusBar(self.statusBar)
+		self.show()
+		self.showMaximized()
 
 	def textHasChanged(self):
-		v = str(self.textEdit.toPlainText())
+		v = str(self.textEdit.toPlainText().toUtf8())
 		s = sum(len(l.split()) for l in v.split('\n'))
 		self.statusBar.showMessage ("Word Count: %s" % s)
 
 	def closeEvent(self, event):
-		v = str(self.textEdit.toPlainText())
+		v = str(self.textEdit.toPlainText().toUtf8())
 		if len(v) > 0 and v[-1] != '\n':
 			v = v + '\n'
-		with open(self.jfile,'w') as f:
+		try:
+			os.makedirs(os.path.dirname(self.filename))
+		except (OSError,):
+			pass # directory already exists
+		with open(self.filename,'w') as f:
 			f.write(v)
 
-app = PyQt4.QtGui.QApplication([])
-journal = Journal()
-journal.show()
-app.exec_()
+def Journal():
+	Location = os.path.join(os.path.expanduser("~"),'Documents','Journal')
+	today = datetime.date.today()
+	year = today.year
+	jdir = os.path.join(Location, str(year))
+	filename = 'journal-%s.txt' % today.isoformat()
+	jfile = os.path.join(jdir, filename)
+	title = 'WordCountJournal:  ' + jfile
+	return SingleFileEditor(jfile, title)
+
+if __name__ == '__main__':
+	app = PyQt4.QtGui.QApplication([])
+	journal = Journal()
+	app.exec_()
