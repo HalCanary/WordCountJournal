@@ -35,7 +35,13 @@ class SingleFileEditor(PyQt4.QtGui.QMainWindow):
 		self.setWindowTitle(WindowTitle)
 		self.textEdit = PyQt4.QtGui.QTextEdit(self)
 		self.textEdit.setAcceptRichText(False)
-		self.statusBar =PyQt4.QtGui.QStatusBar()
+		self.statusBar = PyQt4.QtGui.QStatusBar()
+		self.statusBar.showMessage('saved')
+
+		self.wordCount = PyQt4.QtGui.QLabel()
+		self.wordCount.setStyleSheet( "border-width: 0px; ")
+		self.statusBar.addPermanentWidget(self.wordCount)
+
 		self.textEdit.setFontPointSize(14)
 		self.textEdit.setStyleSheet(
 			"background-color:rgb(0, 0, 0); "
@@ -45,15 +51,20 @@ class SingleFileEditor(PyQt4.QtGui.QMainWindow):
 				self.textEdit.setPlainText(unicode(f.read(),'utf8'))
 		except (IOError,):
 			pass # file does not exist
-		self.textHasChanged()
+		self.updateWordCount()
 
 		self.textEdit.connect(
 			self.textEdit,PyQt4.QtCore.SIGNAL("textChanged()"),
 			self.textHasChanged)
-		ctrlq = PyQt4.QtGui.QAction(self)
-		self.addAction(ctrlq)
-		ctrlq.setShortcut('Ctrl+Q')
-		ctrlq.connect(ctrlq, PyQt4.QtCore.SIGNAL("triggered()"), self.close)
+
+		def makeAction(widget, shortcut, signal, function):
+			action = PyQt4.QtGui.QAction(self)
+			widget.addAction(action)
+			action.setShortcut(shortcut)
+			action.connect(action, PyQt4.QtCore.SIGNAL(signal), function)
+		makeAction(self, 'Ctrl+Q', 'triggered()', self.close)
+		makeAction(self, 'Ctrl+S', 'triggered()', self.saveFile)
+
 		self.resize(500, 500)
 		self.setCentralWidget(self.textEdit)
 		self.setStatusBar(self.statusBar)
@@ -61,11 +72,18 @@ class SingleFileEditor(PyQt4.QtGui.QMainWindow):
 		self.showMaximized()
 
 	def textHasChanged(self):
+		self.updateWordCount()
+		self.statusBar.showMessage('* unsaved *')
+
+	def updateWordCount(self):
 		v = str(self.textEdit.toPlainText().toUtf8())
 		s = sum(len(l.split()) for l in v.split('\n'))
-		self.statusBar.showMessage ("Word Count: %s" % s)
+		self.wordCount.setText("Word Count: %s" % s)
 
 	def closeEvent(self, event):
+		self.saveFile()
+
+	def saveFile(self):
 		v = str(self.textEdit.toPlainText().toUtf8())
 		if len(v) > 0 and v[-1] != '\n':
 			v = v + '\n'
@@ -75,6 +93,7 @@ class SingleFileEditor(PyQt4.QtGui.QMainWindow):
 			pass # directory already exists
 		with open(self.filename,'w') as f:
 			f.write(v)
+		self.statusBar.showMessage('saved')
 
 def Journal():
 	Location = os.path.join(os.path.expanduser("~"),'Documents','Journal')
