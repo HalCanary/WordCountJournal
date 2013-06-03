@@ -100,14 +100,12 @@ class SingleFileEditor(PyQt4.QtGui.QMainWindow):
 		self.statusBar.showMessage('saved')
 
 def Journal():
-	Location = os.path.join(os.path.expanduser("~"),'Documents','Journal')
 	today = datetime.date.today()
-	year = today.year
-	jdir = os.path.join(Location, str(year))
-	filename = 'journal-%s.txt' % today.isoformat()
-	jfile = os.path.join(jdir, filename)
-	title = 'WordCountJournal:  ' + jfile
-	return SingleFileEditor(jfile, title)
+	path = os.path.join(
+		os.path.expanduser("~"), 'Documents', 'Journal',
+		str(today.year), 'journal-%s.txt' % today.isoformat())
+	title = 'WordCountJournal: ' + path.replace(os.path.expanduser('~'),'~')
+	return SingleFileEditor(path, title)
 
 if __name__ == '__main__':
 	app = PyQt4.QtGui.QApplication([])
