@@ -23,14 +23,9 @@ import PyQt4.QtCore
 class SingleFileEditor(PyQt4.QtGui.QMainWindow):
 	def __init__(self, filename, WindowTitle):
 		super(SingleFileEditor, self).__init__(None)
-		self.setWindowIcon(PyQt4.QtGui.QIcon(PyQt4.QtGui.QIcon.fromTheme("text")))
+		self.setWindowIcon(PyQt4.QtGui.QIcon(
+				PyQt4.QtGui.QIcon.fromTheme("text")))
 		self.filename = filename
-		self.setStyleSheet(
-			"background-color:rgb(0, 0, 0); "
-			"color: rgb(255, 255, 255); "
-			"border-style: outset; "
-			"border-width: 2px; "
-			"border-color: rgb(31, 31, 31);")
 
 		self.setWindowTitle(WindowTitle)
 		self.textEdit = PyQt4.QtGui.QTextEdit(self)
@@ -39,13 +34,22 @@ class SingleFileEditor(PyQt4.QtGui.QMainWindow):
 		self.statusBar.showMessage('saved')
 
 		self.wordCount = PyQt4.QtGui.QLabel()
-		self.wordCount.setStyleSheet( "border-width: 0px; ")
+
+		self.statusBar.setStyleSheet(
+			"QStatusBar, QLabel {"
+			"background-color:rgb(64, 64, 64); "
+			"color: rgb(255, 255, 255); }" )
+
 		self.statusBar.addPermanentWidget(self.wordCount)
 
 		self.textEdit.setFontPointSize(14)
 		self.textEdit.setStyleSheet(
+			"QTextEdit {"
 			"background-color:rgb(0, 0, 0); "
-			"color: rgb(255, 255, 255);")
+			"color: rgb(255, 255, 255); "
+			"border-style: outset; "
+			"border-width: 2px; "
+			"border-color: rgb(31, 31, 31); }")
 		try:
 			with open(self.filename, 'rU') as f:
 				self.textEdit.setPlainText(unicode(f.read(),'utf8'))
