@@ -1,20 +1,22 @@
 WordCountJournal
 ================
 
-Copyright 2013 Hal Canary
+Copyright 2013-2026 Hal Canary
 
-![WordCountJournal screenshot](http://halcanary.org/images/WordCountJournal.png)
+![WordCountJournal screenshot](./screenshot.png)
 
 Commands:
 --------
 
--   'ctrl-s' — Save.
--   'ctrl-q' — Save and Close.
+-   `Ctrl+S` / `Cmd+S` — Save.
+-   `Ctrl+Q` / `Ctrl+F4` / `Ctrl+W` / `Cmd+Q` / `Cmd+W` — Save and Close.
+-   `Ctrl+Plus` / `Cmd+Plus` — Zoom In.
+-   `Ctrl+Minus` / `Cmd+Minus` — Zoom Out.
 
 Default Path:
 --------
 
-    ~/Documents/Journal/YYYY/journal-YYYY-MM-DD.txt
+    ~/Notes/YYYY/MM/journal-YYYY-MM-DD_www.txt
 
 License:
 --------
